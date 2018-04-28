@@ -32,6 +32,7 @@
                         <div class="container border border-info p-1">
                             <div id="chatbox">
                                 <?php
+                                    
                                     if(file_exists("logs/log.html") && filesize("logs/log.html") > 0){
                                         $handle = fopen("logs/log.html", "r");
                                         $contents = fread($handle, filesize("logs/log.html"));
@@ -39,11 +40,7 @@
                                         
                                         echo $contents;
                                     }
-                                    else{
-                                        $file_exists_flag = file_exists("logs/log.html");
-                                        $filesize = filesize("logs/log.html");
-                                        echo "File exists:".$file_exists_flag."<br>Size: ".$filesize."<br>";
-                                    }
+                                    
                                 ?>
                             </div>
                         </div>
@@ -88,6 +85,27 @@
                             $("#usermsg").attr("value", "");
                             return false;
                         });
+
+                        setInterval (loadLog, 2500);	
+                        
+                        //Load the file containing the chat log
+                        function loadLog(){		
+
+                            var oldscrollHeight = $("#chatbox").attr("scrollHeight") - 20;
+
+                            $.ajax({
+                                url: "logs/log.html",
+                                cache: false,
+                                success: function(html){		
+                                    $("#chatbox").html(html); //Insert chat log into the #chatbox div				
+                                    
+                                    //Auto-scroll			
+                                    var newscrollHeight = $("#chatbox").attr("scrollHeight") - 20; //Scroll height after the request
+                                    if(newscrollHeight > oldscrollHeight){
+                                        $("#chatbox").animate({ scrollTop: newscrollHeight }, 'normal'); //Autoscroll to bottom of div
+				                },
+                            });
+                        }
                     });
                 </script>
                 
@@ -149,7 +167,7 @@ if( isset($_POST['enter']) ){
 if(isset($_GET['logout'])){ 
 
     //Simple exit message
-    $fp = fopen("/var/www/html/logs/log.html", 'a');
+    $fp = fopen("logs/log.html", 'a');
     
     fwrite($fp, "<div class='msgln'><i>User ". $_SESSION['name'] ." has left the chat session.</i><br></div>");
     fclose($fp);

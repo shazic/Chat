@@ -2,6 +2,7 @@
 
 #chatbox {
     height:20em;
+    overflow:auto;
 }
 
 /* CSS Document *
